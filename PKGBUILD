@@ -13,7 +13,7 @@ license=('custom')
 depends=('gtk3' 'desktop-file-utils' 'xdg-utils')
 optdepends=('jack' 'pulseaudio')
 
-source=("https://www.landoleet.org/reaper${pkgver//.}_linux_x86_64.tar.xz")
+source=("https://www.landoleet.org/old/reaper${pkgver//.}_linux_x86_64.tar.xz")
 sha256sums=('3265e21403ae6e85c055540672cc2f4da7a097d000d46b10f4e43963ed471ef4')
 
 package() {
