@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+DIR=$(dirname $(realpath "$0"))
+
+if [ -n "$1" ] ; then
+  vdate=$1
+else
+  vdate=$(date +'%m%d')
+fi
+pkgver=6.23+dev${vdate}
+file=("reaper${pkgver//.}_linux_x86_64.tar.xz")
+url=("https://www.landoleet.org/$file")
+
+pushd $DIR
+  sed -i "s/^\(pkgver=\).*/\1${pkgver}/" $DIR/PKGBUILD
+  wget -v -nc $url -P $DIR
+  sha=$(sha256sum $DIR/$file | awk '{print $1}')
+  sed -i "s/^\(sha256sums=\).*/\1('${sha}')/" $DIR/PKGBUILD
+  makepkg -si
+  cp /var/cache/pacman/pkg/reaper-bin-dev-${pkgver}-1-x86_64.pkg.tar.zst ~/SyncLinux/
+popd
