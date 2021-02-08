@@ -1,8 +1,8 @@
 pkgname=reaper-bin-dev
 pkgver=6.23+dev0207
 pkgrel=1
-conflicts=(reaper-bin)
-provides=('reaper-bin=6.21' 'lv2-host' 'vst-host' 'vst3-host')
+conflicts=('reaper-bin')
+provides=('reaper-bin=6.23' 'lv2-host' 'vst-host' 'vst3-host')
 groups=('pro-audio')
 
 pkgdesc="Digital Audio Workstation"
