@@ -1,5 +1,5 @@
 pkgname=reaper-bin-dev
-pkgver=6.23+dev0206
+pkgver=6.23+dev0207
 pkgrel=1
 conflicts=(reaper-bin)
 provides=('reaper-bin=6.21' 'lv2-host' 'vst-host' 'vst3-host')
@@ -14,7 +14,7 @@ depends=('gtk3' 'desktop-file-utils' 'xdg-utils')
 optdepends=('jack' 'pulseaudio')
 
 source=("https://www.landoleet.org/reaper${pkgver//.}_linux_x86_64.tar.xz")
-sha256sums=('b8b579914985425de839aeb3238f9d0179872fc4d2f630f1edd2fa2a8fa7def6')
+sha256sums=('eb6e0c600b94853430945a5c8c4b384854cdc871274297ff120c9f949baa7184')
 
 package() {
   XDG_DATA_HOME="${srcdir}/desktop" sh "${srcdir}/reaper_linux_x86_64/install-reaper.sh" --install "${pkgdir}/opt" --integrate-user-desktop
