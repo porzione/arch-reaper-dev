@@ -4,13 +4,20 @@ set -e
 
 DIR=$(dirname $(realpath "$0"))
 
+bver=6.24
+
 if [ -n "$1" ] ; then
-  vdate=$1
+  if [[ $1 =~ rc[0-9] ]] ; then
+    pkgver=${bver}$1
+  else
+    pkgver=${bver}+dev$1
+  fi
 else
-  vdate=$(date +'%m%d')
+  pkgver=${bver}+dev$(date +'%m%d')
 fi
-pkgver=6.23+dev${vdate}
+
 file=("reaper${pkgver//.}_linux_x86_64.tar.xz")
+echo $file
 url=("https://www.landoleet.org/$file")
 
 pushd $DIR
