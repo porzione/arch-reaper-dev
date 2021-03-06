@@ -16,7 +16,7 @@ OptionParser.new do |opts|
   opts.on('-v', '--version VERSION', 'Dev version') do |v|
     opt.ver = v
   end
-  opts.on('-b', '--basever BASE', 'Base version, ex 6.24') do |b|
+  opts.on('-b', '--basever BASE', 'Base version, ex 6.25') do |b|
     opt.bver = b
   end
   opts.on('-d', '--destdir DIR', 'Destination dir') do |d|
@@ -40,20 +40,20 @@ puts url if opt.debug
 
 btotal = nil
 unless File.exist?(file)
-  URI.open(url, 'rb',
-           content_length_proc: lambda { |clen|
-    btotal = clen
-  },
-  progress_proc: lambda { |btrans|
-    if btotal
-      print("\r#{btrans}/#{btotal}")
-    else
-      print("\r#{btrans} (total size unknown)")
-    end
-  }) do |page|
-    File.open("#{__dir__}/#{file}", 'wb') do |file|
-      while chunk = page.read(8192)
-        file.write(chunk)
+  URI.parse(url).open('rb',
+                      content_length_proc: lambda { |clen|
+                                             btotal = clen
+                                           },
+                      progress_proc: lambda { |btrans|
+                                       if btotal
+                                         print("\r#{btrans}/#{btotal}")
+                                       else
+                                         print("\r#{btrans} (total size unknown)")
+                                       end
+                                     }) do |page|
+    File.open("#{__dir__}/#{file}", 'wb') do |f|
+      while (chunk = page.read(8192))
+        f.write(chunk)
       end
     end
   end
@@ -75,8 +75,9 @@ FileUtils.mv(tmp.path, "#{__dir__}/PKGBUILD")
 
 Dir.chdir(__dir__) { system 'makepkg -si' }
 
-FileUtils.cp(
-  "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-x86_64.pkg.tar.zst",
-  opt.ddir
-) if opt.ddir
-
+if opt.ddir
+  FileUtils.cp(
+    "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-x86_64.pkg.tar.zst",
+    opt.ddir
+  )
+end
