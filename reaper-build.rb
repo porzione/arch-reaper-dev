@@ -39,7 +39,7 @@ url = "https://www.landoleet.org/#{file}"
 puts url if opt.debug
 
 btotal = nil
-unless File.exist?(file)
+unless File.exist?("#{__dir__}/#{file}")
   URI.parse(url).open('rb',
                       content_length_proc: lambda { |clen|
                                              btotal = clen
@@ -59,7 +59,7 @@ unless File.exist?(file)
   end
 end
 
-digest = Digest::SHA256.file(file)
+digest = Digest::SHA256.file("#{__dir__}/#{file}")
 puts digest if opt.debug
 pkgbuild = "#{__dir__}/PKGBUILD"
 tmp = Tempfile.new
