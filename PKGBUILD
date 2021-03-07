@@ -5,7 +5,7 @@ conflicts=('reaper-bin')
 provides=('reaper-bin=6.25' 'lv2-host' 'vst-host' 'vst3-host')
 groups=('pro-audio')
 
-pkgdesc="Digital Audio Workstation"
+pkgdesc="A complete digital audio production application for computers, offering a full multitrack audio and MIDI recording, editing, processing, mixing and mastering toolset"
 url="http://www.reaper.fm"
 arch=('x86_64')
 license=('custom')
