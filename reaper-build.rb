@@ -51,6 +51,7 @@ unless File.exist?("#{__dir__}/#{file}")
                                          print("\r#{btrans} (total size unknown)")
                                        end
                                      }) do |page|
+    puts
     File.open("#{__dir__}/#{file}", 'wb') do |f|
       while (chunk = page.read(8192))
         f.write(chunk)
@@ -60,7 +61,7 @@ unless File.exist?("#{__dir__}/#{file}")
 end
 
 digest = Digest::SHA256.file("#{__dir__}/#{file}")
-puts digest if opt.debug
+puts "sha256: #{digest}" if opt.debug
 pkgbuild = "#{__dir__}/PKGBUILD"
 tmp = Tempfile.new
 tmp.write(
