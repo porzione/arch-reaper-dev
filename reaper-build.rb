@@ -19,10 +19,15 @@ OptionParser.new do |opts|
   opts.on('-b', '--basever BASE', 'Base version, ex 6.25') do |b|
     opt.bver = b
   end
-  opts.on('-d', '--destdir DIR', 'Destination dir') do |d|
+  opts.on('-d', '--destdir DIR',  'Destination dir') do |d|
     opt.ddir = d
   end
+  opts.on('-a', '--arch arch',    'Arhitecture') do |a|
+    opt.arch = a
+  end
 end.parse!
+arch = opt.arch || `uname -m`.strip
+puts "arch: #{arch}" if opt.debug
 
 abort 'Need base version' unless opt.bver
 
@@ -33,10 +38,11 @@ pkgver = if opt.ver
          else
            "#{opt.bver}+dev#{DateTime.now.strftime('%m%d')}"
          end
+puts "ver: #{pkgver}" if opt.debug
 
 file = "reaper#{pkgver.tr('.', '')}_linux_x86_64.tar.xz"
 url = "https://www.landoleet.org/#{file}"
-puts url if opt.debug
+puts "url: #{url}" if opt.debug
 
 btotal = nil
 unless File.exist?("#{__dir__}/#{file}")
@@ -67,6 +73,7 @@ tmp = Tempfile.new
 tmp.write(
   File.read(pkgbuild)
   .sub(/(?<=^pkgver=).+/, pkgver)
+  .sub(/(?<=^_arch=).+/, arch)
   .sub(/(?<=^sha256sums=).+/, "('#{digest}')")
   .sub(/(?<=^provides=\('reaper-bin=)[^']+/, opt.bver)
 )
@@ -77,8 +84,6 @@ FileUtils.mv(tmp.path, "#{__dir__}/PKGBUILD")
 Dir.chdir(__dir__) { system 'makepkg -si' }
 
 if opt.ddir
-  FileUtils.cp(
-    "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-x86_64.pkg.tar.zst",
-    opt.ddir
-  )
+  src = "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-#{arch}.pkg.tar.zst"
+  FileUtils.cp(src, opt.ddir)
 end
