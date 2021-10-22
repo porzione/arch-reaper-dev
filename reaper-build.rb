@@ -4,7 +4,7 @@
 require 'optparse'
 require 'ostruct'
 require 'date'
-require 'tempfile'
+require 'erb'
 require 'open-uri'
 require 'fileutils'
 require 'digest'
@@ -34,7 +34,10 @@ pkgver = if opt.ver
            "#{opt.bver}+dev#{DateTime.now.strftime('%m%d')}"
          end
 
-file = "reaper#{pkgver.tr('.', '')}_linux_x86_64.tar.xz"
+arch, os = RUBY_PLATFORM.match('^(\w+)-(\w+)$').captures
+puts "target: #{arch}-#{os}" if opt.debug
+
+file = "reaper#{pkgver.tr('.', '')}_#{os}_#{arch}.tar.xz"
 url = "https://www.landoleet.org/#{file}"
 puts url if opt.debug
 
@@ -63,22 +66,21 @@ end
 digest = Digest::SHA256.file("#{__dir__}/#{file}")
 puts "sha256: #{digest}" if opt.debug
 pkgbuild = "#{__dir__}/PKGBUILD"
-tmp = Tempfile.new
-tmp.write(
-  File.read(pkgbuild)
-  .sub(/(?<=^pkgver=).+/, pkgver)
-  .sub(/(?<=^sha256sums=).+/, "('#{digest}')")
-  .sub(/(?<=^provides=\('reaper-bin=)[^']+/, opt.bver)
+tpl = ERB.new(File.read("#{__dir__}/PKGBUILD.erb"))
+pkg = tpl.result_with_hash(
+  pkgver:       pkgver,
+  provides_ver: opt.bver,
+  sha256sums:   digest,
+  arch:         arch,
+  os:           os
 )
-tmp.close
-
-FileUtils.mv(tmp.path, "#{__dir__}/PKGBUILD")
+File.write(pkgbuild, pkg, mode: 'w')
 
 Dir.chdir(__dir__) { system 'makepkg -si' }
 
 if opt.ddir
   FileUtils.cp(
-    "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-x86_64.pkg.tar.zst",
+    "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-#{arch}.pkg.tar.zst",
     opt.ddir
   )
 end

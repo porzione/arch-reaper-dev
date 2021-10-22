@@ -3,4 +3,5 @@ src
 *.tar.xz
 *.orig
 *.bak
+PKGBUILD
 
