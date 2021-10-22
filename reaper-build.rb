@@ -19,8 +19,14 @@ OptionParser.new do |opts|
   opts.on('-b', '--basever BASE', 'Base version, ex 6.25') do |b|
     opt.bver = b
   end
-  opts.on('-d', '--destdir DIR', 'Destination dir') do |d|
+  opts.on('-d', '--destdir DIR',  'Destination dir') do |d|
     opt.ddir = d
+  end
+  opts.on('-a', '--arch arch',    'Arhitecture') do |a|
+    opt.arch = a
+  end
+  opts.on('-o', '--os OS',        'OS, e.g. linux') do |o|
+    opt.os = o
   end
 end.parse!
 
@@ -33,13 +39,16 @@ pkgver = if opt.ver
          else
            "#{opt.bver}+dev#{DateTime.now.strftime('%m%d')}"
          end
+puts "ver: #{pkgver}" if opt.debug
 
 arch, os = RUBY_PLATFORM.match('^(\w+)-(\w+)$').captures
+arch = opt.arch if opt.arch
+os = opt.os if opt.os
 puts "target: #{arch}-#{os}" if opt.debug
 
 file = "reaper#{pkgver.tr('.', '')}_#{os}_#{arch}.tar.xz"
 url = "https://www.landoleet.org/#{file}"
-puts url if opt.debug
+puts "url: #{url}" if opt.debug
 
 btotal = nil
 unless File.exist?("#{__dir__}/#{file}")
@@ -79,8 +88,6 @@ File.write(pkgbuild, pkg, mode: 'w')
 Dir.chdir(__dir__) { system 'makepkg -si' }
 
 if opt.ddir
-  FileUtils.cp(
-    "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-#{arch}.pkg.tar.zst",
-    opt.ddir
-  )
+  src = "/var/cache/pacman/pkg/reaper-bin-dev-#{pkgver}-1-#{arch}.pkg.tar.zst"
+  FileUtils.cp(src, opt.ddir)
 end

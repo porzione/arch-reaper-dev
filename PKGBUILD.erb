@@ -1,34 +1,35 @@
 pkgname=reaper-bin-dev
-pkgver=<%= pkgver %>
 pkgrel=1
-conflicts=('reaper-bin')
+pkgver=<%= pkgver %>
 provides=('reaper-bin=<%= provides_ver %>' 'lv2-host' 'vst-host' 'vst3-host')
+arch=('x86_64' 'i686' 'aarch64' 'armv7l')
+conflicts=('reaper-bin')
+depends=('gtk3' 'desktop-file-utils' 'xdg-utils' 'aribb24')
 groups=('pro-audio')
-
+license=('custom')
+optdepends=('jack' 'pulseaudio')
 pkgdesc="A complete digital audio production application for computers, offering a full multitrack audio and MIDI recording, editing, processing, mixing and mastering toolset"
 url="https://www.reaper.fm"
-arch=('<%= arch %>')
-license=('custom')
-
-depends=('gtk3' 'desktop-file-utils' 'xdg-utils')
-optdepends=('jack' 'pulseaudio')
-
 source=("https://www.landoleet.org/reaper${pkgver//.}_<%= os %>_<%= arch %>.tar.xz")
 sha256sums=('<%= sha256sums %>')
 
 package() {
-  XDG_DATA_HOME="${srcdir}/desktop" sh "${srcdir}/reaper_<%= os %>_<%= arch %>/install-reaper.sh" --install "${pkgdir}/opt" --integrate-user-desktop
+    XDG_DATA_HOME="${srcdir}/desktop" sh "${srcdir}/reaper_linux_<%= arch %>/install-reaper.sh" --install "${pkgdir}/opt" --integrate-user-desktop
 
-  sed -i 's#^Exec.*#Exec="/opt/REAPER/reaper" %F#g' "${srcdir}/desktop/applications/cockos-reaper.desktop"
-  install -D -m644 "${srcdir}/desktop/applications/cockos-reaper.desktop" "${pkgdir}/usr/share/applications/cockos-reaper.desktop"
-  install -d "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
-  install -m644 "${srcdir}/desktop/icons/hicolor/256x256/apps/"*.png "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
-  install -D -m644 "${srcdir}/desktop/mime/packages/application-x-reaper.xml" "${pkgdir}/usr/share/mime/packages/application-x-reaper.xml"
+    rm "${pkgdir}/opt/REAPER/uninstall-reaper.sh"
 
-  rm "${pkgdir}/opt/REAPER/uninstall-reaper.sh"
-  mkdir -p "${pkgdir}/usr/bin"
-  ln -s /opt/REAPER/reaper "${pkgdir}/usr/bin/reaper"
-  mkdir -p "${pkgdir}/usr/share/licenses/reaper"
-  ln -s /opt/REAPER/license.txt "${pkgdir}/usr/share/licenses/reaper/LICENSE"
+    mkdir -p "${pkgdir}/usr/bin"
+    ln -s /opt/REAPER/reaper "${pkgdir}/usr/bin/reaper"
+
+    mkdir -p "${pkgdir}/usr/share/licenses/reaper"
+    ln -s /opt/REAPER/EULA.txt "${pkgdir}/usr/share/licenses/reaper/LICENSE"
+
+    sed -i 's#^Exec.*#Exec="/opt/REAPER/reaper" %F#g' "${srcdir}/desktop/applications/cockos-reaper.desktop"
+
+    install -Dm644 "${srcdir}/desktop/applications/cockos-reaper.desktop" "${pkgdir}/usr/share/applications/cockos-reaper.desktop"
+
+    install -d "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
+    install -m644 "${srcdir}/desktop/icons/hicolor/256x256/apps/"*.png "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
+
+    install -Dm644 "${srcdir}/desktop/mime/packages/application-x-reaper.xml" "${pkgdir}/usr/share/mime/packages/application-x-reaper.xml"
 }
-
