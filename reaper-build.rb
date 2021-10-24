@@ -9,6 +9,8 @@ require 'open-uri'
 require 'fileutils'
 require 'digest'
 
+OS = 'linux'
+
 opt = OpenStruct.new
 OptionParser.new do |opts|
   opts.on('-D', 'Debug') { opt.debug = true }
@@ -25,9 +27,6 @@ OptionParser.new do |opts|
   opts.on('-a', '--arch arch',    'Arhitecture') do |a|
     opt.arch = a
   end
-  opts.on('-o', '--os OS',        'OS, e.g. linux') do |o|
-    opt.os = o
-  end
 end.parse!
 
 abort 'Need base version' unless opt.bver
@@ -41,12 +40,10 @@ pkgver = if opt.ver
          end
 puts "ver: #{pkgver}" if opt.debug
 
-arch, os = RUBY_PLATFORM.match('^(\w+)-(\w+)$').captures
-arch = opt.arch if opt.arch
-os = opt.os if opt.os
-puts "target: #{arch}-#{os}" if opt.debug
+arch = opt.arch || RUBY_PLATFORM.match('^(\w+)-\w+$').captures.first
+puts "target: #{arch}-#{OS}" if opt.debug
 
-file = "reaper#{pkgver.tr('.', '')}_#{os}_#{arch}.tar.xz"
+file = "reaper#{pkgver.tr('.', '')}_#{OS}_#{arch}.tar.xz"
 url = "https://www.landoleet.org/#{file}"
 puts "url: #{url}" if opt.debug
 
@@ -81,7 +78,7 @@ pkg = tpl.result_with_hash(
   provides_ver: opt.bver,
   sha256sums:   digest,
   arch:         arch,
-  os:           os
+  os:           OS
 )
 File.write(pkgbuild, pkg, mode: 'w')
 
