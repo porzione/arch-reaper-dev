@@ -44,7 +44,8 @@ arch = opt.arch || RUBY_PLATFORM.match('^(\w+)-\w+$').captures.first
 puts "target: #{arch}-#{OS}" if opt.debug
 
 file = "reaper#{pkgver.tr('.', '')}_#{OS}_#{arch}.tar.xz"
-url = "https://www.landoleet.org/#{file}"
+dv = opt.bver.sub(/\d\d$/, 'x')
+url = opt.rel ? "https://www.reaper.fm/files/#{dv}/#{file}" : "https://www.landoleet.org/#{file}"
 puts "url: #{url}" if opt.debug
 
 btotal = nil
@@ -69,7 +70,7 @@ unless File.exist?("#{__dir__}/#{file}")
   end
 end
 
-digest = Digest::SHA256.file("#{__dir__}/#{file}")
+digest = opt.rel ? Digest::SHA256.file("#{__dir__}/#{file}") : 'SKIP'
 puts "sha256: #{digest}" if opt.debug
 pkgbuild = "#{__dir__}/PKGBUILD"
 tpl = ERB.new(File.read("#{__dir__}/PKGBUILD.erb"))
